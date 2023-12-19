@@ -7,7 +7,7 @@ public class MeEnemies : MonoBehaviour
     public Rigidbody2D rb;
     public Transform Ground;
     public LayerMask groundLayer;
-
+    private PlayerMovement pm;
     private float horizontal;
     private float speed = 3f;
     private bool isRight = true;
@@ -17,6 +17,8 @@ public class MeEnemies : MonoBehaviour
     private void Start() {
         //animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        pm = FindObjectOfType<PlayerMovement>();
+        pm.Enemydmg = 1;
     }
 
     

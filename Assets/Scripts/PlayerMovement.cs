@@ -1,13 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
+    //input actions
+    public PlayerInputActions playerControls;
+    private InputAction move;
+    private InputAction jump;
     public Rigidbody2D rb;
     public Transform Ground;
     public LayerMask groundLayer;
 
+    public float Maxhealth = 3;
+    public float Currenthealth;
+    public int Enemydmg =1;
     private float horizontal;
     private float speed = 5f;
     private float jumpingPower = 10f;
@@ -15,6 +24,29 @@ public class PlayerMovement : MonoBehaviour
     private Animator animator;
     private void Start() {
         animator = GetComponent<Animator>();
+        Currenthealth = Maxhealth;
+        playerControls = new PlayerInputActions();
+    }
+    private void OnEnable(){
+        move = playerControls.Player.Move;
+        move.Enable();
+        move.performed += Move;
+        move.canceled += Move;
+
+        jump = playerControls.Player.Jump;
+        jump.Enable();
+        jump.performed += Jump;
+    }
+    private void OnDisable(){
+        move = playerControls.Player.Move;
+        move.Disable();
+        move.performed += Move;
+        move.canceled += Move;
+
+        jump = playerControls.Player.Jump;
+        jump.Disable();
+        jump.performed += Jump;
+        jump.canceled += Jump;
     }
     void Update()
     {
@@ -26,13 +58,13 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isWalking", false);
         }
          if (!isRight && horizontal > 0f){
-            flip();
+            Flip();
 
          }
          else if (isRight && horizontal < 0f){
-            flip();
+            Flip();
          }
-
+        
     }
 
     public void Jump(InputAction.CallbackContext context){
@@ -50,7 +82,8 @@ public class PlayerMovement : MonoBehaviour
         return Physics2D.OverlapCircle(Ground.position,0.1f,groundLayer);
     }
 
-    private void flip(){
+    private void Flip(){
+
         isRight = !isRight;
         Vector2 theScale = transform.localScale;
         theScale.x *= -1;
@@ -60,5 +93,24 @@ public class PlayerMovement : MonoBehaviour
     public void Move( InputAction.CallbackContext context) {
         horizontal = context.ReadValue<Vector2>().x;
     }
+
+    void OnCollisionEnter2D(Collision2D other){
+        if(other.gameObject.CompareTag("Enemy")){
+            TakeDamage(Enemydmg);
+        }
+    }
+    public void TakeDamage (int dmg){
+        
+        Currenthealth -= dmg;
+
+        if (Currenthealth <= 0 ){
+            //die animation
+            //die UI
+            //reload scene
+            this.enabled = false;
+        }
+    }
+
+
 
 }
