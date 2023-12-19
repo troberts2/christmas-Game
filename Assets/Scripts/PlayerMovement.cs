@@ -12,12 +12,22 @@ public class PlayerMovement : MonoBehaviour
     private float speed = 5f;
     private float jumpingPower = 10f;
     private bool isRight = true;
+    private Animator animator;
+    private void Start() {
+        animator = GetComponent<Animator>();
+    }
     void Update()
     {
          rb.velocity = new Vector2( horizontal * speed, rb.velocity.y);
-
+        if(horizontal != 0){
+            animator.SetBool("isWalking", true);
+        }
+        else{
+            animator.SetBool("isWalking", false);
+        }
          if (!isRight && horizontal > 0f){
             flip();
+
          }
          else if (isRight && horizontal < 0f){
             flip();
@@ -28,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
     public void Jump(InputAction.CallbackContext context){
         if (context.performed && isGrounded()){
             rb.velocity = new Vector2( rb.velocity.x, jumpingPower);
+            animator.SetTrigger("jump");
         }
 
         if ( context.canceled && rb.velocity.y > 0f){
@@ -41,8 +52,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void flip(){
         isRight = !isRight;
-        Vector3 localScale = transform.localScale;
-        transform.localScale = localScale;
+        Vector2 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
     }
 
     public void Move( InputAction.CallbackContext context) {
