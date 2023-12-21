@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     //input actions
-    public PlayerInputActions playerControls;
+    public PlayerControls playerControls;
     private InputAction move;
     private InputAction jump;
     public Rigidbody2D rb;
@@ -25,7 +25,9 @@ public class PlayerMovement : MonoBehaviour
     private void Start() {
         animator = GetComponent<Animator>();
         Currenthealth = Maxhealth;
-        playerControls = new PlayerInputActions();
+    }
+    private void Awake(){
+        playerControls = new PlayerControls();
     }
     private void OnEnable(){
         move = playerControls.Player.Move;
@@ -40,13 +42,13 @@ public class PlayerMovement : MonoBehaviour
     private void OnDisable(){
         move = playerControls.Player.Move;
         move.Disable();
-        move.performed += Move;
-        move.canceled += Move;
+        move.performed -= Move;
+        move.canceled -= MoveCancelled;
 
         jump = playerControls.Player.Jump;
         jump.Disable();
-        jump.performed += Jump;
-        jump.canceled += Jump;
+        jump.performed -= Jump;
+        jump.canceled -= Jump;
     }
     void Update()
     {
@@ -90,8 +92,11 @@ public class PlayerMovement : MonoBehaviour
         transform.localScale = theScale;
     }
 
-    public void Move( InputAction.CallbackContext context) {
-        horizontal = context.ReadValue<Vector2>().x;
+    private void Move(InputAction.CallbackContext callbackContext){
+        horizontal = callbackContext.ReadValue<Vector2>().x;
+    }
+    private void MoveCancelled(InputAction.CallbackContext callbackContext){
+        horizontal = 0f;
     }
 
     void OnCollisionEnter2D(Collision2D other){

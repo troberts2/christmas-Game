@@ -10,15 +10,18 @@ public class SantaBehavior : MonoBehaviour
     public bool stopTimer = false;
     [SerializeField] private Gradient _gradient = null;
     [SerializeField] private Image _image;
+    private Animator animator;
     // Start is called before the first frame update
     void Start()
     {
         timeMax = timerLength;
+        animator = GetComponent<Animator>();
         StartTimer();
     }
 
     public void StartTimer(){
         StartCoroutine(StartTheTimer());
+        StartCoroutine(AnimateSanta());
     }
 
     IEnumerator StartTheTimer(){
@@ -35,6 +38,32 @@ public class SantaBehavior : MonoBehaviour
                 _image.fillAmount = timerLength/timeMax;
             }
         }
+    }
+
+    IEnumerator AnimateSanta(){
+        while(!stopTimer){
+            if(timerLength/timeMax > .66f){
+                animator.SetTrigger("idle1");
+                yield return null;
+            }
+            else if(timerLength/timeMax > .33f){
+                animator.SetTrigger("idle2");
+                yield return null;
+            }
+            else if(timerLength/timeMax > 0f){
+                animator.SetBool("idle3", true);
+                yield return new WaitForSeconds(3f);
+                animator.SetTrigger("eat");
+                yield return new WaitForSeconds(3f);
+            }
+        }
+        yield return null;
+    }
+
+    IEnumerator GrabUpgrade(){
+        animator.SetTrigger("walk");
+        yield return new WaitForSeconds(4f);
+        //trigger ui for upgrade
     }
 
 }
