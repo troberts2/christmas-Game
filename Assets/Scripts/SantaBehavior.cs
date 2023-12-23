@@ -10,7 +10,7 @@ public class SantaBehavior : MonoBehaviour
     public bool stopTimer = false;
     [SerializeField] private Gradient _gradient = null;
     [SerializeField] private Image _image;
-    private Animator animator;
+    internal Animator animator;
     // Start is called before the first frame update
     void Start()
     {
