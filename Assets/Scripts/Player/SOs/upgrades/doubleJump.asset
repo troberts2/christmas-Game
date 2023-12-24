@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69e61a4fca1c4364fa4e076170e43fac, type: 3}
   m_Name: doubleJump
   m_EditorClassIdentifier: 
-  itemName: Double Jump
+  itemName: Extra Jump
   itemIcon: {fileID: -1505245505, guid: e8c48b3918b07f34ebce63d06ec414b3, type: 3}
   upgradeType: 1
+  gunSprite: {fileID: 0}

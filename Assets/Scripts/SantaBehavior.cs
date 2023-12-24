@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SantaBehavior : MonoBehaviour
@@ -31,6 +32,7 @@ public class SantaBehavior : MonoBehaviour
 
             if(timerLength <= 0){
                 stopTimer = true;
+                SceneManager.LoadScene("DiedScreen");
             }
 
             if(!stopTimer){
@@ -60,7 +62,8 @@ public class SantaBehavior : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator GrabUpgrade(){
+    public IEnumerator GrabUpgrade(){
+        timerLength += 60;
         animator.SetTrigger("walk");
         yield return new WaitForSeconds(4f);
         //trigger ui for upgrade

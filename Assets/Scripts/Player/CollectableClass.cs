@@ -10,6 +10,7 @@ public class CollectableClass : ItemClass
         food,
         drink,
     }
+    public int id;
 
     public override ItemClass GetItem()
     {

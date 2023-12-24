@@ -15,3 +15,4 @@ MonoBehaviour:
   itemName: milk
   itemIcon: {fileID: 0}
   collectableType: 1
+  id: 1

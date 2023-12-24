@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UnityEngine.SceneManagement;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -14,27 +15,44 @@ public class InventoryManager : MonoBehaviour
     private UpgradeClass incomingUpgradeSO;
     [SerializeField] private Image incomingUpgrade;
     [SerializeField] private TextMeshProUGUI incomingUpgradeText;
+    private int collectableCount = 0;
+    [SerializeField] private AudioClip select;
+    private AudioSource audioSource;
 
     [SerializeField] private Image replace1;
     [SerializeField] private TextMeshProUGUI replace1Text;
     [SerializeField] private Image replace2;
     [SerializeField] private TextMeshProUGUI replace2Text;
+    private dialogue dialogue;
 
 
     [SerializeField] private GameObject upgradeCanvas;
     [SerializeField] private GameObject slotHolderUpgrades;
     private GameObject[] slotsUpgrades;
+    [SerializeField] private GameObject slotHolderInv;
+    private GameObject[] slotsInv;
+    private SantaBehavior santa;
 
     private void Start() {
+        audioSource = GetComponent<AudioSource>();
         slotsUpgrades = new GameObject[slotHolderUpgrades.transform.childCount];
         //set slots for upgrades
         for(int i = 0; i < slotHolderUpgrades.transform.childCount; i ++){
             slotsUpgrades[i] = slotHolderUpgrades.transform.GetChild(i).gameObject;
         }
+
+        //slots for inventory on pause
+        slotsInv = new GameObject[slotHolderInv.transform.childCount];
+        for(int i = 0; i < slotHolderInv.transform.childCount; i ++){
+            slotsInv[i] = slotHolderInv.transform.GetChild(i).gameObject;
+        }
+        dialogue = FindObjectOfType<dialogue>();
+        santa = FindObjectOfType<SantaBehavior>();
         RefreshUI();
     }
 
     public void RefreshUI(){
+        //upgrade screen update
         for(int i = 0; i < slotsUpgrades.Length - 2; i++){
             try{
                 slotsUpgrades[i].transform.GetChild(0).GetComponent<Image>().enabled = true;
@@ -46,8 +64,11 @@ public class InventoryManager : MonoBehaviour
         }
         if(incomingUpgradeSO != null){
             if(incomingUpgradeSO.upgradeType == UpgradeClass.UpgradeType.weapon){
-                replace1.sprite = currentUpgrades[0].itemIcon;
-                replace1Text.text = currentUpgrades[0].itemName;
+                if(currentUpgrades[0] != null){
+                    replace1.sprite = currentUpgrades[0].itemIcon;
+                    replace1Text.text = currentUpgrades[0].itemName;
+                }
+
                 if(currentUpgrades[1] != null){
                     replace2.sprite = currentUpgrades[1].itemIcon;
                     replace2Text.text = currentUpgrades[1].itemName;
@@ -56,14 +77,29 @@ public class InventoryManager : MonoBehaviour
                 }
             }
             else if(incomingUpgradeSO.upgradeType == UpgradeClass.UpgradeType.movement){
-                replace1.sprite = currentUpgrades[2].itemIcon;
-                replace1Text.text = currentUpgrades[2].itemName;
+                if(currentUpgrades[2] != null){
+                    replace1.sprite = currentUpgrades[2].itemIcon;
+                    replace1Text.text = currentUpgrades[2].itemName;
+                }
+
                 if(currentUpgrades[3] != null){
                     replace2.sprite = currentUpgrades[3].itemIcon;
                     replace2Text.text = currentUpgrades[3].itemName;
                     replace2.enabled = true;
                     replace2Text.enabled = true;
                 }
+            }
+        }
+
+
+        //Inventory update
+        for(int i = 0; i < slotsInv.Length - 2; i++){
+            try{
+                slotsInv[i].transform.GetChild(0).GetComponent<Image>().enabled = true;
+                slotsInv[i].transform.GetChild(0).GetComponent<Image>().sprite = currentUpgrades[i].itemIcon;
+            }catch{
+                slotsInv[i].transform.GetChild(0).GetComponent<Image>().enabled = false;
+                slotsInv[i].transform.GetChild(0).GetComponent<Image>().sprite = null;
             }
         }
 
@@ -86,6 +122,7 @@ public class InventoryManager : MonoBehaviour
 
     public void AddCollectable(CollectableClass item){
         currentCollectables.Push(item);
+        collectableCount++;
         Debug.Log(currentCollectables.Count);
         RefreshUI();
     }
@@ -118,8 +155,10 @@ public class InventoryManager : MonoBehaviour
         if(currentCollectables.Count < 1){
             upgradeCanvas.SetActive(false);
         }else{
-            PlayerInteractWithSanta();
+            StartCoroutine(PlayerInteractWithSanta());
         }
+        audioSource.clip = select;
+        audioSource.Play();
     }
     public void Replace2(){
         if(incomingUpgradeSO.upgradeType == UpgradeClass.UpgradeType.weapon){
@@ -131,12 +170,30 @@ public class InventoryManager : MonoBehaviour
         if(currentCollectables.Count < 1){
             upgradeCanvas.SetActive(false);
         }else{
-            PlayerInteractWithSanta();
+            StartCoroutine(PlayerInteractWithSanta());
         }
+        audioSource.clip = select;
+        audioSource.Play();
+    }
+    public void CancelUpgrade(){
+        if(currentCollectables.Count < 1){
+            upgradeCanvas.SetActive(false);
+        }else{
+            StartCoroutine(PlayerInteractWithSanta());
+        }
+        audioSource.clip = select;
+        audioSource.Play();
     }
 
-    public void PlayerInteractWithSanta(){
+    public IEnumerator PlayerInteractWithSanta(){
         if(currentCollectables.Count > 0){
+            if(collectableCount == 6){
+                SceneManager.LoadScene("WinScreen");
+            }
+            santa.animator.SetTrigger("walk");
+            santa.timerLength += 60;
+            GetComponent<PlayerMovement>().curHp = GetComponent<PlayerMovement>().maxHp;
+            yield return new WaitForSeconds(4f);
             upgradeCanvas.SetActive(true);
             if(currentCollectables.Peek().collectableType == CollectableClass.CollectableType.food){
                 currentCollectables.Pop();
@@ -147,6 +204,9 @@ public class InventoryManager : MonoBehaviour
                 GiveUpgradeMovement();
             }
             Debug.Log(currentCollectables.Count + " food left");
+        }else{
+            dialogue.StartDialogue();
         }
+        yield return null;
     }
 }

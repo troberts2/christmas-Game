@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: candyCane
   itemIcon: {fileID: -2076251949, guid: 3806ed0b311fd894ab679bd89dbd75bc, type: 3}
+  collectableType: 0
+  id: 2
