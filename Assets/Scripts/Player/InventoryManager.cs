@@ -68,12 +68,18 @@ public class InventoryManager : MonoBehaviour
                     replace1.sprite = currentUpgrades[0].itemIcon;
                     replace1Text.text = currentUpgrades[0].itemName;
                 }
+                else{
+                    replace1.sprite = null;
+                    replace1Text.text = null;
+                }
 
                 if(currentUpgrades[1] != null){
                     replace2.sprite = currentUpgrades[1].itemIcon;
                     replace2Text.text = currentUpgrades[1].itemName;
-                    replace2.enabled = true;
-                    replace2Text.enabled = true;
+                }
+                else{
+                    replace2.sprite = null;
+                    replace2Text.text = null;
                 }
             }
             else if(incomingUpgradeSO.upgradeType == UpgradeClass.UpgradeType.movement){
@@ -81,12 +87,17 @@ public class InventoryManager : MonoBehaviour
                     replace1.sprite = currentUpgrades[2].itemIcon;
                     replace1Text.text = currentUpgrades[2].itemName;
                 }
-
+                else{
+                    replace1.sprite = null;
+                    replace1Text.text = null;
+                }
                 if(currentUpgrades[3] != null){
                     replace2.sprite = currentUpgrades[3].itemIcon;
                     replace2Text.text = currentUpgrades[3].itemName;
-                    replace2.enabled = true;
-                    replace2Text.enabled = true;
+                }
+                else{
+                    replace2.sprite = null;
+                    replace2Text.text = null;
                 }
             }
         }
@@ -155,7 +166,7 @@ public class InventoryManager : MonoBehaviour
         if(currentCollectables.Count < 1){
             upgradeCanvas.SetActive(false);
         }else{
-            StartCoroutine(PlayerInteractWithSanta());
+            showUpgradeScreen();
         }
         audioSource.clip = select;
         audioSource.Play();
@@ -170,7 +181,7 @@ public class InventoryManager : MonoBehaviour
         if(currentCollectables.Count < 1){
             upgradeCanvas.SetActive(false);
         }else{
-            StartCoroutine(PlayerInteractWithSanta());
+            showUpgradeScreen();
         }
         audioSource.clip = select;
         audioSource.Play();
@@ -179,7 +190,7 @@ public class InventoryManager : MonoBehaviour
         if(currentCollectables.Count < 1){
             upgradeCanvas.SetActive(false);
         }else{
-            StartCoroutine(PlayerInteractWithSanta());
+            showUpgradeScreen();
         }
         audioSource.clip = select;
         audioSource.Play();
@@ -194,19 +205,22 @@ public class InventoryManager : MonoBehaviour
             santa.timerLength += 60;
             GetComponent<PlayerMovement>().curHp = GetComponent<PlayerMovement>().maxHp;
             yield return new WaitForSeconds(4f);
-            upgradeCanvas.SetActive(true);
-            if(currentCollectables.Peek().collectableType == CollectableClass.CollectableType.food){
-                currentCollectables.Pop();
-                GiveUpgradeGun();
-            }
-            else if(currentCollectables.Peek().collectableType == CollectableClass.CollectableType.drink){
-                currentCollectables.Pop();
-                GiveUpgradeMovement();
-            }
-            Debug.Log(currentCollectables.Count + " food left");
+            showUpgradeScreen();
         }else{
             dialogue.StartDialogue();
         }
         yield return null;
+    }
+    private void showUpgradeScreen(){
+        upgradeCanvas.SetActive(true);
+        if(currentCollectables.Peek().collectableType == CollectableClass.CollectableType.food){
+            currentCollectables.Pop();
+            GiveUpgradeGun();
+        }
+        else if(currentCollectables.Peek().collectableType == CollectableClass.CollectableType.drink){
+            currentCollectables.Pop();
+            GiveUpgradeMovement();
+        }
+        Debug.Log(currentCollectables.Count + " food left");
     }
 }
